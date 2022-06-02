@@ -1,8 +1,10 @@
 ﻿using HackChain.ConsoleTests.BlockProducer;
 using HackChain.Utilities;
+using Newtonsoft.Json;
 using Org.BouncyCastle.Crypto.Parameters;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -15,6 +17,7 @@ namespace HackChain.ConsoleTests.Homework
         {
             Console.WriteLine(SeparatorLine);
             Console.WriteLine("Homework for lecture 01...");
+            Console.WriteLine(SeparatorLine);
             RunTask01();
             Console.WriteLine(SeparatorLine);
             RunTask02();
@@ -45,6 +48,15 @@ namespace HackChain.ConsoleTests.Homework
                 "content of the fourth block",
                 "content of the fifth block",
                 "content of the sixth block",
+                "content of the 7 block",
+                "content of the 8 block",
+                "content of the 9 block",
+                "content of the 10 block",
+                "content of the 11 block",
+                "content of the 12 block",
+                "content of the 13 block",
+                "content of the 14 block",
+                "content of the 15 block",
             };
 
             foreach (var row in data)
@@ -59,7 +71,37 @@ namespace HackChain.ConsoleTests.Homework
             Console.WriteLine($"Raw data at index '{index}' is '{data[index]}'.");
             Console.WriteLine($"Data in block at index '{index}' is '{thirdBlock.Data}'.");
 
+            string filename = "BlockchainDump.txt";
+            Console.WriteLine($"Saving the entire Blockchain to a file '{filename}'.");
+            blockChain.SaveToFile(filename);
+
+            Console.WriteLine($"Loading the entire Blockchain from a file '{filename}'.");
+            var loadedBlockchain = BlockChain.LoadFromFile(filename);
+
+            Console.WriteLine($"Original Blockchain blocks count '{blockChain.Height}', loaded Blockchain blocks count '{loadedBlockchain.Height}'.");
+
+            Console.WriteLine("Manually modifying the data in the saved file.");
+
+            var fileContent = File.ReadAllText(filename);
+            var blocks = JsonConvert.DeserializeObject<List<Block>>(fileContent);
+
+            var fiftBlock = blocks[4];
+            fiftBlock.GetType().GetProperty("Data").SetValue(fiftBlock, "new data for block with index 4", null);
             
+            var serializedBlocks = JsonConvert.SerializeObject(blocks);
+
+            FileUtils.ReplaceFileStringContent(filename, serializedBlocks);
+
+            Console.WriteLine($"Loading the entire Blockchain from a tampered file '{filename}'. The change is made to block with index 4, the error becomes visible when the Blockchain tries to verify the next block - the hash doesn't match...");
+
+            try
+            {
+                loadedBlockchain = BlockChain.LoadFromFile(filename);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Exception: {ex}");
+            }
         }
 
         private static void RunTask02()

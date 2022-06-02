@@ -1,4 +1,5 @@
-﻿using Newtonsoft.Json;
+﻿using HackChain.Utilities;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -66,11 +67,7 @@ namespace HackChain.ConsoleTests.BlockProducer
         public void SaveToFile(string filename)
         {
             var serializedBlocks = JsonConvert.SerializeObject(_blocks);
-            if (File.Exists(filename))
-            {
-                File.Delete(filename);
-            }
-            File.AppendAllText(filename, serializedBlocks);
+            FileUtils.ReplaceFileStringContent(filename, serializedBlocks);
         }
 
         public static BlockChain LoadFromFile(string filename)
