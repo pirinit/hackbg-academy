@@ -1,4 +1,5 @@
-﻿using HackChain.Utilities;
+﻿using HackChain.ConsoleTests.BlockProducer;
+using HackChain.Utilities;
 using Org.BouncyCastle.Crypto.Parameters;
 using System;
 using System.Collections.Generic;
@@ -29,7 +30,36 @@ namespace HackChain.ConsoleTests.Homework
 	- fn: preview whole chain of data;
 ");
 
+
             Console.WriteLine("Solution:");
+
+            var blockChain = new BlockChain();
+
+            Console.WriteLine($"New Blockchain instance created. Blocks count '{blockChain.Height}'");
+
+            List<string> data = new List<string>
+            {
+                "content of the first block",
+                "content of the second block",
+                "content of the third block",
+                "content of the fourth block",
+                "content of the fifth block",
+                "content of the sixth block",
+            };
+
+            foreach (var row in data)
+            {
+                blockChain.AddNewData(row);
+            }
+
+            Console.WriteLine($"'{data.Count}' blocks added. Blocks count '{blockChain.Height}'");
+
+            int index = 3;
+            var thirdBlock = blockChain.FindByIndex(index);
+            Console.WriteLine($"Raw data at index '{index}' is '{data[index]}'.");
+            Console.WriteLine($"Data in block at index '{index}' is '{thirdBlock.Data}'.");
+
+            
         }
 
         private static void RunTask02()

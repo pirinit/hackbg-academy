@@ -1,8 +1,10 @@
 ﻿using Org.BouncyCastle.Crypto;
+using Org.BouncyCastle.Crypto.Digests;
 using Org.BouncyCastle.Crypto.Generators;
 using Org.BouncyCastle.Crypto.Parameters;
 using Org.BouncyCastle.Security;
 using System;
+using System.Linq;
 using System.Text;
 
 namespace HackChain.Utilities
@@ -58,6 +60,18 @@ namespace HackChain.Utilities
                 Console.WriteLine("Verification failed with the error: " + exc.ToString());
                 return false;
             }
+        }
+
+        public static string CalcSHA256(string text)
+        {
+            byte[] bytes = Encoding.UTF8.GetBytes(text);
+            Sha256Digest digest = new Sha256Digest();
+            digest.BlockUpdate(bytes, 0, bytes.Length);
+            byte[] result = new byte[digest.GetDigestSize()];
+            digest.DoFinal(result, 0);
+
+
+            return string.Concat(bytes.Select(b => b.ToString("x2")));
         }
     }
 }
