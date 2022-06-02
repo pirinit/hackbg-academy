@@ -1,9 +1,5 @@
 ﻿using HackChain.Utilities;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace HackChain.ConsoleTests.BlockProducer
 {
@@ -15,15 +11,49 @@ namespace HackChain.ConsoleTests.BlockProducer
         public string Hash { get; private set; }
         public DateTime CreatedAt { get; private set; }
 
-        public Block(int index, string data, Block previousBlock)
+        public Block(int index, string data, Block previousBlock, DateTime? createdAt = null)
         {
             Index = index;
             Data = data;
             PreviousBlock = previousBlock;
-            CreatedAt = DateTime.UtcNow;
+            CreatedAt = createdAt ?? DateTime.UtcNow;
+            
+            Hash = CryptoUtils.CalcSHA256(GetBlockContentForHashing());
+        }
 
-            string previoudBlockHash = previousBlock != null ? previousBlock.Hash : "no previous block hash for the genesis block";
-            Hash = CryptoUtils.CalcSHA256(data + previoudBlockHash);
+        private string GetBlockContentForHashing()
+        {
+            string previoudBlockHash = PreviousBlock != null ? PreviousBlock.Hash : "no previous block hash for the genesis block";
+            
+            return $"{Index} {CreatedAt} {Data} {previoudBlockHash}";
+        }
+
+        public override bool Equals(object obj) => this.Equals(obj as Block);
+
+        public override int GetHashCode()
+        {
+            return GetBlockContentForHashing().GetHashCode();
+        }
+
+        public bool Equals(Block other)
+        {
+            if (other is null)
+            {
+                return false;
+            }
+            
+            if (Object.ReferenceEquals(this, other))
+            {
+                return true;
+            }
+
+            bool areEqual = 
+                Index == other.Index &&
+                CreatedAt == other.CreatedAt &&
+                Data == other.Data &&
+                Hash == other.Hash;
+
+            return areEqual;
         }
     }
 }

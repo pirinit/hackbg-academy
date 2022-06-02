@@ -70,8 +70,7 @@ namespace HackChain.Utilities
             byte[] result = new byte[digest.GetDigestSize()];
             digest.DoFinal(result, 0);
 
-
-            return string.Concat(bytes.Select(b => b.ToString("x2")));
+            return string.Concat(result.Select(b => b.ToString("x2")));
         }
     }
 }
