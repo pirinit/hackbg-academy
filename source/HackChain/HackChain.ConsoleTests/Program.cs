@@ -13,8 +13,10 @@ namespace HackChain.ConsoleTests
                 Console.SetWindowSize(120, 40);
             }
             
-            Lecture01.Run();
-            
+            //Lecture01.Run();
+
+            Lecture04.Run();
+
         }
     }
 }
