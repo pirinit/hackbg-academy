@@ -21,7 +21,7 @@ import { ethers, utils } from 'ethers';
 import { useState, useEffect } from 'react';
 import abi from '../abi/abi.json';
 
-const contractAddress = '0x5FbDB2315678afecb367f032d93F642f64180aa3';
+const contractAddress = '0xEf33F157Ac43E261aa11ecc33A130d65c65656c4';
 
 export default function Home() {
   const [signer, setSigner] = useState(null);
@@ -31,6 +31,7 @@ export default function Home() {
   const [price, setPrice] = useState(0);
   const [totalSupply, setTotalSupply] = useState(0);
   const [maxSupply, setMaxSupply] = useState(0);
+  const [mintQuantity, setMintQuantity] = useState(1);
 
   useEffect(() => {
     const initContract = async () => {
@@ -40,6 +41,7 @@ export default function Home() {
   }, [signer]);
 
   const handleConnect = async () => {
+    console.log("handle connect start")
     if (typeof window.ethereum !== 'undefined') {
       try {
         const newProvider = new ethers.providers.Web3Provider(window.ethereum);
@@ -75,8 +77,10 @@ export default function Home() {
 
   const handleMint = async () => {
     try {
-      const options = { value: price };
-      await contract.mint(1, options);
+      const options = { value: price * mintQuantity };
+      await contract.mint(mintQuantity, options);
+
+      console.log(mintQuantity);
     } catch (error) {
       console.error(error);
     }
@@ -122,6 +126,26 @@ export default function Home() {
                 <StatNumber>{`${totalSupply} / ${maxSupply}`}</StatNumber>
               </Stat>
             </SimpleGrid>
+            <Heading as="h2" size="md">
+                Mint
+              </Heading>
+            <Stat border="1px" borderRadius={5} p={1}>
+                <StatLabel>Quantity</StatLabel>
+                <StatNumber>
+                  <NumberInput
+                    onChange={(valueString) => setMintQuantity(parseInt(valueString))}
+                    defaultValue={mintQuantity}
+                    min={1}
+                    max={maxSupply - totalSupply}>
+                    <NumberInputField />
+                    <NumberInputStepper>
+                      <NumberIncrementStepper />
+                      <NumberDecrementStepper />
+                    </NumberInputStepper>
+                </NumberInput>
+                </StatNumber>
+              </Stat>
+            
             <Button colorScheme="teal" onClick={handleMint}>
               Mint
             </Button>
