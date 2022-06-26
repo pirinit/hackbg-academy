@@ -19,7 +19,7 @@ contract MyCollection is ERC721, Ownable {
     error NotRevealed();
     error FailedWithdrawal();
 
-    constructor(string memory _unrevealedURI) ERC721("My Collection", "MCL") {
+    constructor(string memory _unrevealedURI) ERC721("My Turbo Crazy New Collection", "MTCNC") {
         baseURI = _unrevealedURI;
     }
 
