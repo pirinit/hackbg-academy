@@ -50,4 +50,21 @@ describe("MostValuableToken", function () {
         .to.equal(10);
     });
 
+    it("User should be able to withdraw MVTs", async function () {
+      let startingMVTAmount = await mvt.balanceOf(addr1.address);
+      await mvt.connect(addr1).approve(mvsc.address, 10);
+      await mvsc.connect(addr1).stake(10);
+
+      expect(await mvsc.checkStake(addr1.address))
+        .to.equal(10);
+
+      await mvsc.connect(addr1).withdraw();
+
+      expect(await mvsc.checkStake(addr1.address))
+        .to.equal(0);
+
+      let endingMVTAmount = await mvt.balanceOf(addr1.address);
+
+      expect(startingMVTAmount).to.equal(endingMVTAmount);
+    });
 });

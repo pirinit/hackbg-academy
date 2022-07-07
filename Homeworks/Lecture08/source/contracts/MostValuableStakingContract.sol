@@ -32,15 +32,27 @@ contract MostValuableStakingContract is Ownable {
 
         StakingToken.transferFrom(msg.sender, address(this), _amount);
         
-        Stake memory current = stakers[msg.sender];
+        Stake memory stake = stakers[msg.sender];
         // check if already a staker - 
-        if(current.stakedAtTimestamp != 0) {
+        if(stake.stakedAtTimestamp != 0) {
             
         }
 
-        current.stakedAtTimestamp = block.timestamp;
-        current.amount = _amount;
-        stakers[msg.sender] = current;
+        stake.stakedAtTimestamp = block.timestamp;
+        stake.amount = _amount;
+        stakers[msg.sender] = stake;
+    }
+
+    function withdraw() external {
+        Stake memory stake = stakers[msg.sender];
+        require(stake.amount > 0, 
+            "Nothing staked for this address.");
+
+        // claimRewards()
+        // transfer MVT
+        StakingToken.transfer(msg.sender, stake.amount);
+        // remove stake
+        delete stakers[msg.sender];
     }
 
     function checkStake(address _stakerAddress) public view returns (uint256){
