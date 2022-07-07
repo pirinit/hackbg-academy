@@ -1,9 +1,8 @@
 import { expect } from "chai";
 import { ethers } from "hardhat";
 
-import { MostValuableToken } from "../typechain"
-
-const TOKEN_SUPPLY = 1000000;
+import { MostValuableToken } from "../typechain";
+import { constants } from "../constants";
 
 describe("MostValuableToken", function () {
 
@@ -11,11 +10,14 @@ describe("MostValuableToken", function () {
     
     beforeEach(async () => {
         const MostValuableToken = await ethers.getContractFactory("MostValuableToken");
-        mvt = await MostValuableToken.deploy(TOKEN_SUPPLY);
+        mvt = await MostValuableToken.deploy(constants.MostValuableToken.TOKEN_SUPPLY);
         await mvt.deployed();
     })
-  it("Should return the proper token name and symbol", async function () {
+  
+    it("Should return the proper token name, symbol and total supply", async function () {
+      expect(await mvt.totalSupply()).to.equal(constants.MostValuableToken.TOKEN_SUPPLY);
+      expect(await mvt.symbol()).to.equal(constants.MostValuableToken.TOKEN_SYMBOL);
+      expect(await mvt.name()).to.equal(constants.MostValuableToken.TOKEN_NAME);
+    });
 
-    expect(await mvt.symbol()).to.equal("MVT");
-  });
 });
