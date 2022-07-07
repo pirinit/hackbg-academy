@@ -5,7 +5,7 @@ import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/signers";
 import { MostValuableToken, MostValuableRewardToken, MostValuableStakingContract, ERC20 } from "../typechain";
 import { constants } from "../constants";
 
-describe("MostValuableToken", function () {
+describe("MostValuableStakingContract", function () {
 
     let mvt: MostValuableToken;
     let mvrt: MostValuableRewardToken;
@@ -66,5 +66,97 @@ describe("MostValuableToken", function () {
       let endingMVTAmount = await mvt.balanceOf(addr1.address);
 
       expect(startingMVTAmount).to.equal(endingMVTAmount);
+    });
+
+    it("User should be able to claim rewards MVRTs without withdrawing staked MVTs", async function () {
+
+      expect(await mvrt.balanceOf(addr1.address))
+        .to.equal(0);
+
+      let stakedMVTAmount = 10;
+      await mvt.connect(addr1).approve(mvsc.address, stakedMVTAmount);
+      await mvsc.connect(addr1).stake(stakedMVTAmount);
+
+      expect(await mvsc.checkStake(addr1.address))
+        .to.equal(stakedMVTAmount);
+
+      let elapsedSeconds = 60;
+      await ethers.provider.send('evm_increaseTime', [elapsedSeconds]);
+      await mvsc.connect(addr1).claimRewards();
+
+      expect(await mvsc.checkStake(addr1.address))
+        .to.equal(stakedMVTAmount);
+
+        expect(await mvrt.balanceOf(addr1.address))
+        .to.equal(stakedMVTAmount * elapsedSeconds);
+    });
+
+    it("User should receive rewards MVRTs when withdrawing staked MVTs", async function () {
+
+      expect(await mvrt.balanceOf(addr1.address))
+        .to.equal(0);
+
+      let stakedMVTAmount = 10;
+      await mvt.connect(addr1).approve(mvsc.address, stakedMVTAmount);
+      await mvsc.connect(addr1).stake(stakedMVTAmount);
+
+      expect(await mvsc.checkStake(addr1.address))
+        .to.equal(stakedMVTAmount);
+
+      let elapsedSeconds = 60;
+      await ethers.provider.send('evm_increaseTime', [elapsedSeconds]);
+      await mvsc.connect(addr1).withdraw();
+
+      expect(await mvsc.checkStake(addr1.address))
+        .to.equal(0);
+
+      expect(await mvrt.balanceOf(addr1.address))
+        .to.equal(stakedMVTAmount * elapsedSeconds);
+    });
+
+    it("User should see correct rewards amount", async function () {
+
+      let stakedMVTAmount = 10;
+      await mvt.connect(addr1).approve(mvsc.address, stakedMVTAmount);
+      await mvsc.connect(addr1).stake(stakedMVTAmount);
+
+      expect(await mvsc.checkStake(addr1.address))
+        .to.equal(stakedMVTAmount);
+
+      let elapsedSeconds = 60;
+      await ethers.provider.send('evm_increaseTime', [elapsedSeconds]);
+      await mvt.connect(addr1).approve(mvsc.address, stakedMVTAmount);
+
+      expect(await mvsc.connect(addr1).calculateRewards(addr1.address))
+        .to.equal(stakedMVTAmount * elapsedSeconds);
+
+      expect(await mvsc.checkStake(addr1.address))
+          .to.equal(stakedMVTAmount);
+    });
+
+    it("Staking again should claim rewards MVRTs and increase the amount of staked MVTs", async function () {
+      expect(await mvrt.balanceOf(addr1.address))
+        .to.equal(0);
+
+      let stakedMVTAmount = 10;
+      await mvt.connect(addr1).approve(mvsc.address, stakedMVTAmount * 2);
+      await mvsc.connect(addr1).stake(stakedMVTAmount);
+
+      expect(await mvsc.checkStake(addr1.address))
+        .to.equal(stakedMVTAmount);
+
+      let elapsedSeconds = 60;
+      await ethers.provider.send('evm_increaseTime', [elapsedSeconds]);
+
+      await mvsc.connect(addr1).stake(stakedMVTAmount);
+
+      expect(await mvrt.balanceOf(addr1.address))
+        .to.equal(stakedMVTAmount * elapsedSeconds);
+
+      expect(await mvsc.checkStake(addr1.address))
+        .to.equal(stakedMVTAmount * 2);
+      
+      expect(await mvsc.connect(addr1).calculateRewards(addr1.address))
+        .to.equal(0);
     });
 });
